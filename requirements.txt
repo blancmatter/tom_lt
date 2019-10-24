@@ -1,0 +1,8 @@
+dataclasses
+django
+tomtoolkit
+gunicorn
+django-heroku
+lxml
+suds-py3
+wheel
