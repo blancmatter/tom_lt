@@ -109,7 +109,7 @@ class LTObservationForm(GenericObservationForm):
             'xsi': LT_XSI_NS,
         }
         schemaLocation = etree.QName(LT_XSI_NS, 'schemaLocation')
-        uid = 'DJANGO'.format(str(int(time.time())))
+        uid = format(str(int(time.time())))
         return etree.Element('RTML', {schemaLocation: LT_SCHEMA_LOCATION}, xmlns=LT_XML_NS,
                              mode='request', uid=uid, version='3.1a', nsmap=namespaces)
 
@@ -190,17 +190,17 @@ class LT_IOO_ObservationForm(LTObservationForm):
 
         for filter in self.filters:
             if filter == self.filters[0]:
-                self.fields['exposure_time_' + filter] = forms.FloatField(min_value=0,
+                self.fields['exp_time_' + filter] = forms.FloatField(min_value=0,
                                                                           initial=120,
                                                                           label='Integration Time')
-                self.fields['exposure_count_' + filter] = forms.IntegerField(min_value=0,
+                self.fields['exp_count_' + filter] = forms.IntegerField(min_value=0,
                                                                              initial=0,
                                                                              label='No. of integrations')
             else:
-                self.fields['exposure_time_' + filter] = forms.FloatField(min_value=0,
+                self.fields['exp_time_' + filter] = forms.FloatField(min_value=0,
                                                                           initial=120,
                                                                           label='')
-                self.fields['exposure_count_' + filter] = forms.IntegerField(min_value=0,
+                self.fields['exp_count_' + filter] = forms.IntegerField(min_value=0,
                                                                              initial=0,
                                                                              label='')
 
@@ -209,47 +209,47 @@ class LT_IOO_ObservationForm(LTObservationForm):
             Div(
                 Div(HTML('<br><h5>Sloan</h5>'), css_class='form_row'),
                 Div(
-                    Div(PrependedAppendedText('exposure_time_U', 'u\'', 's'),
-                        PrependedAppendedText('exposure_time_G', 'g\'', 's'),
-                        PrependedAppendedText('exposure_time_R', 'r\'', 's'),
-                        PrependedAppendedText('exposure_time_I', 'i\'', 's'),
-                        PrependedAppendedText('exposure_time_Z', 'z\'', 's'),
+                    Div(PrependedAppendedText('exp_time_U', 'u\'', 's'),
+                        PrependedAppendedText('exp_time_G', 'g\'', 's'),
+                        PrependedAppendedText('exp_time_R', 'r\'', 's'),
+                        PrependedAppendedText('exp_time_I', 'i\'', 's'),
+                        PrependedAppendedText('exp_time_Z', 'z\'', 's'),
                         css_class='col-md-6', ),
 
-                    Div('exposure_count_U',
-                        'exposure_count_G',
-                        'exposure_count_R',
-                        'exposure_count_I',
-                        'exposure_count_Z',
+                    Div('exp_count_U',
+                        'exp_count_G',
+                        'exp_count_R',
+                        'exp_count_I',
+                        'exp_count_Z',
                         css_class='col-md-6'),
                     css_class='form-row'
                 ),
                 Div(HTML('<br><h5>Bessell</h5>'), css_class='form_row'),
                 Div(
-                    Div(PrependedAppendedText('exposure_time_B', 'B', 's'),
-                        PrependedAppendedText('exposure_time_V', 'V', 's'),
+                    Div(PrependedAppendedText('exp_time_B', 'B', 's'),
+                        PrependedAppendedText('exp_time_V', 'V', 's'),
                         css_class='col-md-6', ),
 
-                    Div('exposure_count_B',
-                        'exposure_count_V',
+                    Div('exp_count_B',
+                        'exp_count_V',
                         css_class='col-md-6'),
                     css_class='form-row'
                 ),
                 Div(HTML('<br><h5>H-alpha</h5>'), css_class='form_row'),
 
                 Div(
-                    Div(PrependedAppendedText('exposure_time_Halpha6566', '6566', 's'),
-                        PrependedAppendedText('exposure_time_Halpha6634', '6634', 's'),
-                        PrependedAppendedText('exposure_time_Halpha6705', '6705', 's'),
-                        PrependedAppendedText('exposure_time_Halpha6755', '6755', 's'),
-                        PrependedAppendedText('exposure_time_Halpha6822', '6822', 's'),
+                    Div(PrependedAppendedText('exp_time_Halpha6566', '6566', 's'),
+                        PrependedAppendedText('exp_time_Halpha6634', '6634', 's'),
+                        PrependedAppendedText('exp_time_Halpha6705', '6705', 's'),
+                        PrependedAppendedText('exp_time_Halpha6755', '6755', 's'),
+                        PrependedAppendedText('exp_time_Halpha6822', '6822', 's'),
                         css_class='col-md-6', ),
 
-                    Div('exposure_count_Halpha6566',
-                        'exposure_count_Halpha6634',
-                        'exposure_count_Halpha6705',
-                        'exposure_count_Halpha6755',
-                        'exposure_count_Halpha6822',
+                    Div('exp_count_Halpha6566',
+                        'exp_count_Halpha6634',
+                        'exp_count_Halpha6705',
+                        'exp_count_Halpha6755',
+                        'exp_count_Halpha6822',
                         css_class='col-md-6'),
                     css_class='form-row'
                     ),
@@ -257,7 +257,7 @@ class LT_IOO_ObservationForm(LTObservationForm):
             ),
             Div(css_class='col-md-1'),
             Div(
-                Div('binning', css_class='col'),
+                Div('binning', css_class='col-md-'),
                 css_class='col'
             ),
             css_class='form-row'
@@ -266,12 +266,12 @@ class LT_IOO_ObservationForm(LTObservationForm):
     def _build_inst_schedule(self, payload):
 
         for filter in self.filters:
-            if self.cleaned_data['exposure_count_' + filter] != 0:
+            if self.cleaned_data['exp_count_' + filter] != 0:
                 payload.append(self._build_schedule(filter))
 
     def _build_schedule(self, filter):
-        exposure_time = self.cleaned_data['exposure_time_' + filter]
-        exposure_count = self.cleaned_data['exposure_count_' + filter]
+        exp_time = self.cleaned_data['exp_time_' + filter]
+        exp_count = self.cleaned_data['exp_count_' + filter]
 
         schedule = etree.Element('Schedule')
         device = etree.SubElement(schedule, 'Device', name="IO:O", type="camera")
@@ -282,8 +282,8 @@ class LT_IOO_ObservationForm(LTObservationForm):
         binning = etree.SubElement(detector, 'Binning')
         etree.SubElement(binning, 'X', units='pixels').text = self.cleaned_data['binning'].split('x')[0]
         etree.SubElement(binning, 'Y', units='pixels').text = self.cleaned_data['binning'].split('x')[1]
-        exposure = etree.SubElement(schedule, 'Exposure', count=str(exposure_count))
-        etree.SubElement(exposure, 'Value', units='seconds').text = str(exposure_time)
+        exposure = etree.SubElement(schedule, 'Exposure', count=str(exp_count))
+        etree.SubElement(exposure, 'Value', units='seconds').text = str(exp_time)
         schedule.append(self._build_target())
         for const in self._build_constraints():
             schedule.append(const)
@@ -292,39 +292,39 @@ class LT_IOO_ObservationForm(LTObservationForm):
 
 
 class LT_IOI_ObservationForm(LTObservationForm):
-    exposure_time = forms.FloatField(min_value=0, initial=120, label='Integration time',
+    exp_time = forms.FloatField(min_value=0, initial=120, label='Integration time',
                                        widget=forms.NumberInput(attrs={'step': '0.1'}))
-    exposure_count = forms.IntegerField(min_value=1, initial=1, label='No. of integrations', help_text='The Liverpool Telescope will automatically create a dither pattern between exposures.')
+    exp_count = forms.IntegerField(min_value=1, initial=5, label='No. of integrations', help_text='The Liverpool Telescope will automatically create a dither pattern between exposures.')
 
     def extra_layout(self):
         return Div(
             Div(
                 Div(
-                    Div(PrependedAppendedText('exposure_time', 'H', 's'), css_class='col-md-6'),
-                    Div('exposure_count', css_class='col-md-6'),
+                    Div(PrependedAppendedText('exp_time', 'H', 's'), css_class='col-md-6'),
+                    Div('exp_count', css_class='col-md-6'),
                     css_class='form-row'
                 ),
                 css_class='col'
             ),
             Div(css_class='col-md-1'),
-            Div(css_class='col'),
+
             css_class='form-row'
         )
     def _build_inst_schedule(self, payload):
-        exposure_time = self.cleaned_data['exposure_time_' + filter]
-        exposure_count = self.cleaned_data['exposure_count_' + filter]
+        exp_time = self.cleaned_data['exp_time']
+        exp_count = self.cleaned_data['exp_count']
 
         schedule = etree.Element('Schedule')
         device = etree.SubElement(schedule, 'Device', name="IO:I", type="camera")
-        etree.SubElement(device, 'SpectralRegion').text = 'optical'
+        etree.SubElement(device, 'SpectralRegion').text = 'infrared'
         setup = etree.SubElement(device, 'Setup')
         etree.SubElement(setup, 'Filter', type='H')
         detector = etree.SubElement(setup, 'Detector')
         binning = etree.SubElement(detector, 'Binning')
         etree.SubElement(binning, 'X', units='pixels').text = '1'
         etree.SubElement(binning, 'Y', units='pixels').text = '1'
-        exposure = etree.SubElement(schedule, 'Exposure', count=str(exposure_count))
-        etree.SubElement(exposure, 'Value', units='seconds').text = str(exposure_time)
+        exposure = etree.SubElement(schedule, 'Exposure', count=str(exp_count))
+        etree.SubElement(exposure, 'Value', units='seconds').text = str(exp_time)
         schedule.append(self._build_target())
         for const in self._build_constraints():
             schedule.append(const)
@@ -332,9 +332,9 @@ class LT_IOI_ObservationForm(LTObservationForm):
 
 
 class LT_SPRAT_ObservationForm(LTObservationForm):
-    exposure_time = forms.FloatField(min_value=0, initial=120, label='Integration time',
+    exp_time = forms.FloatField(min_value=0, initial=120, label='Integration time',
                                        widget=forms.NumberInput(attrs={'step': '0.1'}))
-    exposure_count = forms.IntegerField(min_value=1, initial=1, label='No. of integrations')
+    exp_count = forms.IntegerField(min_value=1, initial=1, label='No. of integrations')
 
     grating = forms.ChoiceField(choices=[('red', 'Red'), ('blue', 'Blue')], initial='red')
 
@@ -342,15 +342,15 @@ class LT_SPRAT_ObservationForm(LTObservationForm):
         return Div(
             Div(
                 Div(
-                    Div(PrependedAppendedText('exposure_time', '', 's'), css_class='col-md-6'),
-                    Div('exposure_count', css_class='col-md-6'),
+                    Div(PrependedAppendedText('exp_time', '', 's'), css_class='col-md-6'),
+                    Div('exp_count', css_class='col-md-6'),
                     css_class='form-row'
                 ),
                 css_class='col'
             ),
             Div(css_class='col-md-1'),
             Div(
-                Div('grating', css_class='col'),
+                Div('grating', css_class='col-md-8'),
                 css_class='col'
             ),
             css_class='form-row'
@@ -358,20 +358,21 @@ class LT_SPRAT_ObservationForm(LTObservationForm):
 
 
     def _build_inst_schedule(self, payload):
-        exposure_time = self.cleaned_data['exposure_time_' + filter]
-        exposure_count = self.cleaned_data['exposure_count_' + filter]
+        exp_time = self.cleaned_data['exp_time']
+        exp_count = self.cleaned_data['exp_count']
+        grating = self.cleaned_data['grating']
 
         schedule = etree.Element('Schedule')
-        device = etree.SubElement(schedule, 'Device', name="IO:I", type="camera")
+        device = etree.SubElement(schedule, 'Device', name="Sprat", type="spectrograph")
         etree.SubElement(device, 'SpectralRegion').text = 'optical'
         setup = etree.SubElement(device, 'Setup')
-        etree.SubElement(setup, 'Filter', type='H')
+        etree.SubElement(setup, 'Grating', name=grating)
         detector = etree.SubElement(setup, 'Detector')
         binning = etree.SubElement(detector, 'Binning')
         etree.SubElement(binning, 'X', units='pixels').text = '1'
         etree.SubElement(binning, 'Y', units='pixels').text = '1'
-        exposure = etree.SubElement(schedule, 'Exposure', count=str(exposure_count))
-        etree.SubElement(exposure, 'Value', units='seconds').text = str(exposure_time)
+        exposure = etree.SubElement(schedule, 'Exposure', count=str(exp_count))
+        etree.SubElement(exposure, 'Value', units='seconds').text = str(exp_time)
         schedule.append(self._build_target())
         for const in self._build_constraints():
             schedule.append(const)
@@ -379,33 +380,29 @@ class LT_SPRAT_ObservationForm(LTObservationForm):
 
 
 class LT_FRODO_ObservationForm(LTObservationForm):
-    exposure_time_high = forms.FloatField(min_value=0, initial=120, label='Integration time',
+    exp_time_blue = forms.FloatField(min_value=0, initial=120, label='Integration time',
                                      widget=forms.NumberInput(attrs={'step': '0.1'}))
-    exposure_count_high = forms.IntegerField(min_value=0, initial=0, label='No. of integrations')
+    exp_count_blue = forms.IntegerField(min_value=0, initial=0, label='No. of integrations')
+    res_blue = forms.ChoiceField(choices=[('high', 'High'), ('low', 'Low')], initial='low', label='Resolution')
 
-    exposure_time_low = forms.FloatField(min_value=0, initial=120, label='',
+    exp_time_red = forms.FloatField(min_value=0, initial=120, label='',
                                      widget=forms.NumberInput(attrs={'step': '0.1'}))
-    exposure_count_low = forms.IntegerField(min_value=0, initial=0, label='')
-
-    grating = forms.ChoiceField(choices=[('red', 'Red'), ('blue', 'Blue')], initial='red')
+    exp_count_red = forms.IntegerField(min_value=0, initial=0, label='')
+    res_red = forms.ChoiceField(choices=[('high', 'High'), ('low', 'Low')], initial='low', label='')
 
 
     def extra_layout(self):
         return Div(
-            Div(
                 Div(
-                    Div(PrependedAppendedText('exposure_time_high', 'High Res', 's'), PrependedAppendedText('exposure_time_low', 'Low Res', 's'), css_class='col-md-6'),
-                    Div('exposure_count_high', 'exposure_count_low', css_class='col-md-6'),
-                    css_class='form-row'
+                    Div(PrependedAppendedText('exp_time_blue', 'Blue Arm', 's'), PrependedAppendedText('exp_time_red', 'Red Arm', 's'), css_class='col-md-6'),
+                    Div('exp_count_blue', 'exp_count_red', css_class='col-md-6'),
+                    Div('res_blue', 'res_red', css_class='col-md-6'),
+                    css_class='col'
                 ),
-                css_class='col'
-            ),
-            Div(css_class='col-md-1'),
-            Div(
-                Div('grating', css_class='col'),
-                css_class='col'
-            ),
-            css_class='form-row'
+                Div(
+                    css_class='col-md-8'
+                    ),
+                css_class='form-row'
         )
 
     def _build_inst_schedule(self, payload):
@@ -422,8 +419,8 @@ class LT_FRODO_ObservationForm(LTObservationForm):
         binning = etree.SubElement(detector, 'Binning')
         etree.SubElement(binning, 'X', units='pixels').text = '1'
         etree.SubElement(binning, 'Y', units='pixels').text = '1'
-        exposure = etree.SubElement(schedule, 'Exposure', count=str(self.cleaned_data['exposure_count']))
-        etree.SubElement(exposure, 'Value', units='seconds').text = str(self.cleaned_data['exposure_time'])
+        exposure = etree.SubElement(schedule, 'Exposure', count=str(self.cleaned_data['exp_count']))
+        etree.SubElement(exposure, 'Value', units='seconds').text = str(self.cleaned_data['exp_time'])
         schedule.append(self._build_target())
         for const in self._build_constraints():
             schedule.append(const)
@@ -462,10 +459,14 @@ class LTFacility(GenericObservationFacility):
             }
             url = '{0}://{1}:{2}/node_agent2/node_agent?wsdl'.format('http', LT_HOST, LT_PORT)
             client = Client(url=url, headers=headers)
-            response = client.service.handle_rtml(observation_payload)
+            # Send payload, and receive response string, removing the encoding tag which causes issue with lxml
+            response = client.service.handle_rtml(observation_payload).replace('encoding="ISO-8859-1"', '')
             response_rtml = etree.fromstring(response)
-            obs_id = response_rtml.get('uid').split('-')[-1]
-            return [0]
+            mode = response_rtml.get('mode')
+            if mode == 'reject':
+                print(response)
+            obs_id = response_rtml.get('uid')
+            return [obs_id]
         else:
             return[0]
 
