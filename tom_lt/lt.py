@@ -17,70 +17,23 @@ from crispy_forms.bootstrap import PrependedAppendedText, PrependedText, InlineR
 from tom_observations.facility import GenericObservationForm, GenericObservationFacility
 from tom_targets.models import Target
 
-"""
-TOM Toolkit LT Module, Version 0.3.0
 
-For required steps to use this module please see https://github.com/TOMToolkit/tom_lt/blob/master/README.md
-
-This Module allows submission of an observation to the Liverpool Telescope PhaseII database,
-using an RTML (Remote Telescope Markup Language) payload which is sent directly to the Liverpool
-Telescope
-
-Currently supported instruments are;
-- IO:O
-- IO:I
-- SPRAT
-- FRODOspec
-
-The Current feature set is;
-- Setting a Window using Flexible time constraint
-- Control of all observing constraints (Airmass, Seeing, SkyBrightness)
-- Multiband photometry with full IO:O filter set
-- Automatic Autoguider usage setting based on exposure time
-- Automatic Target Acquisition for SPRAT and FRODOspec instruments
-- Paralactic Angled slit orientation for SPRAT
-- Automantic Xe Arc calibration frame for SPRAT
-
-
-Not supported at present are more advanced observation features and sequences which are available through
-the PhaseII tool, such as;
-- Advanced Time constraints (Monitor, Phased, Min. Interval, Fixed)
-- Control of Autoguider options
-- Performing multiple instrument observations in one scheduled Group
-- Defocussing or manual dither / offset patterns
-- Manual Cassegrain rotation to achieve specific sky angles
-- More specific aquisition routines for SPRAT or FRODOspec
-
-
-The Module will be extended in the future to include further functionality within the TOM Toolkit,
-in order of planned implementation;
-- Cancelling of previously submitted observations
-- Checking of an observations status and whether dataproducts are ready
-- Ability to pull dataproducts directly into the TOMToolkit for reduction
-
-
-
-
-"""
 try:
-    import tom_lt.secret
-    LT_SETTINGS = tom_lt.secret.LT_SETTINGS
-except (ImportError, AttributeError, KeyError):
+    LT_SETTINGS = settings.FACILITIES['LT']
+except (AttributeError, KeyError):
     LT_SETTINGS = {
-        'proposalIDs': (('proposal ID', 'PID1'), ('proposal ID2', 'PID2')),
-        'username': 'username',
-        'password': 'password'
+        'proposalIDs': (('proposal ID1', ''), ('proposal ID2', '')),
+        'username': '',
+        'password': '',
+        'LT_HOST': '',
+        'LT_PORT': '',
+        'DEBUG': False,
     }
 
-LT_HOST = '161.72.57.3'
-LT_PORT = '8080'
-LT_XML_NS = 'http://www.rtml.org/v3.1a'
 
+LT_XML_NS = 'http://www.rtml.org/v3.1a'
 LT_XSI_NS = 'http://www.w3.org/2001/XMLSchema-instance'
 LT_SCHEMA_LOCATION = 'http://www.rtml.org/v3.1a http://telescope.livjm.ac.uk/rtml/RTML-nightly.xsd'
-
-# Print RTML file and do not send to LT, used for development
-DEBUG = False
 
 
 class LTObservationForm(GenericObservationForm):
@@ -118,7 +71,7 @@ class LTObservationForm(GenericObservationForm):
 
     def is_valid(self):
         super().is_valid()
-        errors = LTFacility.validate_observation(self.observation_payload())
+        errors = LTFacility.validate_observation(self, self.observation_payload())
         if errors:
             self.add_error(None, errors)
         return not errors
@@ -145,7 +98,7 @@ class LTObservationForm(GenericObservationForm):
                 Div(
                     PrependedText('max_airmass', 'Airmass <'),
                     PrependedAppendedText('max_seeing', 'Seeing <', 'arcsec'),
-                    PrependedAppendedText('max_skybri', 'Dark + ', 'mag/arcsec^2'),
+                    PrependedAppendedText('max_skybri', 'Dark + ', 'mag/arcsec\xB2'),
                     InlineRadios('photometric'),
                     css_class='col-md-8'
                 ),
@@ -495,9 +448,9 @@ class LTFacility(GenericObservationFacility):
             return LT_IOO_ObservationForm
 
     def submit_observation(self, observation_payload):
-        if(DEBUG):
+        if(LT_SETTINGS['DEBUG']):
             payload = etree.fromstring(observation_payload)
-            f = open("django.RTML", "w")
+            f = open("created.rtml", "w")
             f.write(etree.tostring(payload, encoding="unicode", pretty_print=True))
             f.close()
             return [0]
@@ -506,14 +459,15 @@ class LTFacility(GenericObservationFacility):
                 'Username': LT_SETTINGS['username'],
                 'Password': LT_SETTINGS['password']
             }
-            url = '{0}://{1}:{2}/node_agent2/node_agent?wsdl'.format('http', LT_HOST, LT_PORT)
+            url = '{0}://{1}:{2}/node_agent2/node_agent?wsdl'.format('http', LT_SETTINGS['LT_HOST'],
+                                                                     LT_SETTINGS['LT_PORT'])
             client = Client(url=url, headers=headers)
             # Send payload, and receive response string, removing the encoding tag which causes issue with lxml parsing
             response = client.service.handle_rtml(observation_payload).replace('encoding="ISO-8859-1"', '')
             response_rtml = etree.fromstring(response)
             mode = response_rtml.get('mode')
             if mode == 'reject':
-                print(response)
+                self.dump_request_response(observation_payload, response_rtml)
             obs_id = response_rtml.get('uid')
             return [obs_id]
 
@@ -522,36 +476,56 @@ class LTFacility(GenericObservationFacility):
         payload = form._build_prolog()
         payload.append(form._build_project())
 
-    def validate_observation(observation_payload):
-        if(DEBUG):
+    def validate_observation(self, observation_payload):
+        if(LT_SETTINGS['DEBUG']):
             return []
         else:
             headers = {
                 'Username': LT_SETTINGS['username'],
                 'Password': LT_SETTINGS['password']
             }
-            url = '{0}://{1}:{2}/node_agent2/node_agent?wsdl'.format('http', LT_HOST, LT_PORT)
+            url = '{0}://{1}:{2}/node_agent2/node_agent?wsdl'.format('http',
+                                                                     LT_SETTINGS['LT_HOST'],
+                                                                     LT_SETTINGS['LT_PORT'])
             client = Client(url=url, headers=headers)
             validate_payload = etree.fromstring(observation_payload)
             # Change the payload to an inquiry mode document to test connectivity.
             validate_payload.set('mode', 'inquiry')
             # Send payload, and receive response string, removing the encoding tag which causes issue with lxml parsing
+            print("Trying")
             try:
                 response = client.service.handle_rtml(validate_payload).replace('encoding="ISO-8859-1"', '')
             except:
                 return ['Error with connection to Liverpool Telescope',
                         'This could be due to incorrect credentials, or IP / Port settings',
                         'Occassionally, this could be due to the rebooting of systems at the Telescope Site',
-                        'Please retry at another time. If the problem persists please contact ltsupport_astronomer@ljmu.ac.uk']
-
+                        'Please retry at another time.',
+                        'If the problem persists please contact ltsupport_astronomer@ljmu.ac.uk']
 
             response_rtml = etree.fromstring(response)
+            print("HERE", response)
             if response_rtml.get('mode') == 'offer':
+                self.dump_request_response()(observation_payload, response)
                 return []
-            elif response_rtml.get('mode') == 'reject':
+            elif response_rtml.get('type') == 'reject':
+                self.dump_request_response()(observation_payload, response)
                 return ['Error with RTML submission to Liverpool Telescope',
                         'This can occassionally happen due to systems rebooting at the Telescope Site',
-                        'Please retry at another time. If the problem persists please contact ltsupport_astronomer@ljmu.ac.uk']
+                        'Please retry at another time.',
+                        'If the problem persists please contact ltsupport_astronomer@ljmu.ac.uk']
+
+    def dump_request_response(self, observation_payload, response):
+        """
+        Function to dump the payload and response form the telescope
+        for debugging / user support issues
+        """
+        print("dump_request_response called")
+        f = open("dump", "w")
+        f.write("DUMP")
+        f.write(etree.tostring(observation_payload, encoding="unicode", pretty_print=True))
+        f.write(etree.tostring(response, encoding="unicode", pretty_print=True))
+        f.close()
+        return
 
     def get_observation_url(self, observation_id):
         return ''

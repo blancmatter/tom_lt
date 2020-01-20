@@ -1,0 +1,101 @@
+<style media="screen" type="text/css">
+  .picture_w400_right {
+    float: right;
+    clear: right;
+    width: 350px;
+    height: 430px;
+    padding: 1px;
+    border: 1px solid black;
+    background-color:white;
+    margin-left: 10px;
+    margin-bottom: 5px;
+  }
+</style>
+
+
+<h1>TOM Toolkit Module for Liverpool Telescope</h1>
+
+<div class="picture_w400_right">
+  <img src="TOMRTMLGrowth.png" width="350px" border="0" alt=""></a>
+  <p class="NewsCaption" style="margin: 0 0.5em 0 0.5em;">RTML submission (in blue) to LT Phase 2 database and how it compares to other methods. &copy; 2019 LT Group</p>
+</div>
+
+<div class="picture_w400_right">
+  <img src="tom-toolkit-logo.png" width="350px" border="0" alt=""></a>
+</div>
+
+<h2>Observation Scheudling in the ZTF and LSST eras</h2>
+<p>The Liverpool Telescope team have released a module for the <a href="https://lco.global/tomtoolkit/">TOM Toolkit</a>, to enable astronomers to
+
+<p>
+The TOM Toolkit, is an open source flexible framework for building a custom Target Observation Manager (TOM) system. Built in Python, using the django web framework, users can easily customise and run their own TOM system to meet specific requirements. The TOM Toolkit is designed to be extensible via modules, for Transient Alert Broker systems (e.g. Lasair, Antares, MARS) and also for specific facilities. By using a TOM system, users can currate a list of targets, schedule observations on different telescopes and networks, and retrive the data back into the TOM system for analysis, all using the same interface.</p>
+
+<p>The Liverpool Telescope Module is in Beta release phase and can be added to a TOM system using simple pip installation commands. The module is joint managed by Las Cumbras Observatory and the Liverpool Telescope software teams. For more information on usage an installation please see the <a href="https://github.com/TOMToolkit/tom_lt">Github Repository README</a><p>
+
+<p>The Beta release provides support for sending observations into the Phase 2 database of the Liverpool Telescope, with the following Instruments;</p>
+<ul>
+ <li>IO:O</li>
+ <li>IO:I</li>
+ <li>SPRAT</li>
+ <li>FRODOSpec</li>
+</ul>
+
+
+
+<h2>RTML</h2>
+<p>
+What may not be so widely known is an alternative way an LT user can enter observation details, which in some cases is faster and more convenient. It uses the "<strong>R</strong>emote <strong>T</strong>elescope <strong>M</strong>arkup <strong>L</strong>anguage" (RTML) protocol, which was invented in 1989 at the <a href="http://www.berkeley.edu/">University of California at Berkely, USA</a>. It's a special dialect of <a href="https://www.w3.org/TR/REC-xml/">XML (Extensible Markup Language)</a>, and is used to remote-control telescopes, or to communicate with autonomous robotic telescopes.</p>
+
+<p>We provide two different ways to use RTML to send your observation details to the LT. Like the Phase2UI, both of them insert the information straight into the phase 2 database. The advantage however is that they allow you to <strong><em>automate the Phase 2 process</em></strong>, particularly useful if you have a lot of targets or observation groups to enter. The two RTML interfaces are:
+
+  <ul>
+    <li><strong>command-line tools:</strong>
+      <ul>
+        <li>one tool to generate the RTML, and another to send the RTML directly to the LT</li>
+        <li>can be incorporated into customised scripts and programs</li>
+        <li>example use: generating and entering many targets quickly</li>
+      </ul>
+    </li>
+    <li style="margin-top: 1em;"><strong>LT-specific RTML Application Programming Interface (API):</strong>
+      <ul>
+        <li>allows users to build their own customised GUI tools at their institutions</li>
+        <li>GUI makes use of API to generate RTML and send directly to LT</li>
+      </ul>
+    </li>
+  </ul>
+</p>
+
+<p>We have in the past provided a third interface: bespoke webpages created by us for users who do not want to program with the command-line tools or API. These restricted-access pages contained HTML forms tailored to a user's specific observing programme. They generated observation details in RTML and transmitted directly to the LT. These pages are now being phased out.</p>
+
+
+<h2>Rapid-response overrides</h2>
+
+<p>Both RTML interfaces can also talk directly to the Target of Opportunity Control Agent (TOCA), the system that triggers the LT's rapid-response capability to interrupt the current observation and immediately observe your target instead. The LT already performs completely autonomous instant overrides for Gamma-Ray Burst alerts via a different protocol from the NASA Gamma-ray Coordinates Network (see GCN in diagram above), but a similar end result is also possible via RTML/TOCA.</p>
+
+<p>As you can imagine, overrides can be very disruptive. Therefore permission to have TOCA capability has to be requested at the Phase 1 stage and approved by the TAC.</p>
+
+
+<h2>RTML-capable instruments</h2>
+
+<p>RTML capability is being phased in across the LT's suite of instruments.<ul>
+
+  <li><strong>RTML enabled instruments:</strong>
+    <ul>
+      <li>IO:O</li>
+      <li>IO:I</li>
+      <li>Sprat</li>
+      <li>FrodoSpec</li>
+    </ul>
+  </li>
+  <li style="margin-top: 1em;"><strong>Instruments to next be enabled:</strong>
+    <ul>
+      <li>MOPTOP</li>
+      <li>RISE</li>
+    </ul>
+  </li>
+</ul>
+</p></p>
+
+<h2>Applying for RTML capability</h2>
+
+<p>The RTML facility is available to all users who have TAC-awarded time allocations. Please <a href="/Contact/">contact us</a> if this sounds interesting, and we will provide full user instructions.</p>

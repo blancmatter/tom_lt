@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'tom_catalogs',
     'tom_observations',
     'tom_dataproducts',
+    'tom_setup'
 ]
 
 SITE_ID = 1
@@ -211,12 +212,21 @@ FACILITIES = {
             },
         },
     },
+    'LT': {
+        'proposalIDs': (('expired_test', 'ExpiredTest'), ('ProposalID', 'Display Name')),
+        'username': 'arnold_doug',
+        'password': 'LMTR_test',
+        'LT_HOST': '161.72.57.3',
+        'LT_PORT': '8080',
+        'DEBUG': False,
+    },
 }
 
 TOM_FACILITY_CLASSES = [
     'tom_observations.facilities.lco.LCOFacility',
     'tom_observations.facilities.gemini.GEMFacility',
     'tom_lt.lt.LTFacility',
+    'tom_lt.lt_stub.LTFacility',
 ]
 
 TOM_ALERT_CLASSES = [
